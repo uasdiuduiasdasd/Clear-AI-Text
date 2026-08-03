@@ -1,0 +1,119 @@
+<Page
+    x:Class="ClearAIText.App.Views.SandboxPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    NavigationCacheMode="Required">
+
+    <Grid Padding="24,14,24,18" RowDefinitions="Auto,Auto,Auto,*,Auto">
+        <!-- Row 0: Page Title & Subtitle -->
+        <StackPanel Grid.Row="0" Spacing="2" Margin="0,0,0,8">
+            <TextBlock x:Name="SandboxPageTitle" Text="Интерактивная песочница" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap" />
+            <TextBlock x:Name="SandboxPageSubtitle" Text="Проверяйте и тестируйте правила нормализации текста в реальном времени."
+                       Style="{StaticResource BodySubtleTextBlockStyle}" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <!-- Row 1: Global Monitoring Status Hint (if disabled in settings) -->
+        <InfoBar x:Name="MonitoringHintInfoBar" Grid.Row="1"
+                 IsOpen="False" IsClosable="False" Severity="Informational"
+                 Margin="0,0,0,8" />
+
+        <!-- Row 2: Top Mode Toolbar -->
+        <Grid Grid.Row="2" Margin="0,0,0,10" ColumnDefinitions="Auto,*">
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                <TextBlock x:Name="ModeLabel" Text="Режим:" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" />
+                <ComboBox x:Name="SandboxModeComboBox" MinWidth="260" SelectionChanged="SandboxModeComboBox_SelectionChanged">
+                    <ComboBoxItem x:Name="ModeTier1Item" Content="Безопасная типографика (Tier 1)" IsSelected="True" />
+                    <ComboBoxItem x:Name="ModeAggressiveItem" Content="Агрессивная очистка (Tier 1 + 2)" />
+                    <ComboBoxItem x:Name="ModeCustomOnlyItem" Content="Только пользовательские правила" />
+                    <ComboBoxItem x:Name="ModeCurrentItem" Content="По текущим настройкам" />
+                </ComboBox>
+            </StackPanel>
+        </Grid>
+
+        <!-- Row 3: Main Editor & Inspection Area (Two Columns) -->
+        <Grid Grid.Row="3" ColumnDefinitions="*,*" Margin="0,0,0,10">
+            <!-- Left: Raw Input Text Area -->
+            <Grid Grid.Column="0" Margin="0,0,8,0" RowDefinitions="Auto,*">
+                <!-- Input Header with contextual actions -->
+                <Grid Grid.Row="0" Margin="0,0,0,6" ColumnDefinitions="Auto,*,Auto">
+                    <TextBlock x:Name="InputHeaderLabel" Grid.Column="0" Text="Исходный текст" Style="{StaticResource BodyStrongTextBlockStyle}" VerticalAlignment="Center" />
+                    <TextBlock x:Name="InputStatsLabel" Grid.Column="1" Margin="8,0,0,0" Text="0 симв., 0 стр." Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                    
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <Button x:Name="PasteButton" Padding="8,4" Click="PasteFromClipboardButton_Click" ToolTipService.ToolTip="Вставить из буфера обмена">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <FontIcon Glyph="&#xE77F;" FontSize="12" />
+                                <TextBlock x:Name="PasteButtonText" Text="Вставить" FontSize="12" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="ClearButton" Padding="8,4" Click="ClearInputsButton_Click" ToolTipService.ToolTip="Очистить поле ввода">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <FontIcon Glyph="&#xE74D;" FontSize="12" />
+                                <TextBlock x:Name="ClearButtonText" Text="Очистить" FontSize="12" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <TextBox x:Name="RawInputTextBox" Grid.Row="1"
+                         AcceptsReturn="True" TextWrapping="Wrap"
+                         PlaceholderText="Введите или вставьте текст..."
+                         FontFamily="Consolas, Cascadia Mono, monospace"
+                         VerticalAlignment="Stretch"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto"
+                         TextChanged="RawInputTextBox_TextChanged" />
+            </Grid>
+
+            <!-- Right: Cleaned Output Area -->
+            <Grid Grid.Column="1" Margin="8,0,0,0" RowDefinitions="Auto,*">
+                <!-- Output Header with contextual actions -->
+                <Grid Grid.Row="0" Margin="0,0,0,6" ColumnDefinitions="Auto,*,Auto">
+                    <TextBlock x:Name="OutputHeaderLabel" Grid.Column="0" Text="Результат" Style="{StaticResource BodyStrongTextBlockStyle}" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" VerticalAlignment="Center" />
+                    <TextBlock x:Name="OutputStatsLabel" Grid.Column="1" Margin="8,0,0,0" Text="0 симв." Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                        <Button x:Name="SwapButton" Padding="8,4" Click="SwapInputOutputButton_Click" ToolTipService.ToolTip="Использовать как исходный текст для повторной обработки">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <FontIcon Glyph="&#xE8AB;" FontSize="12" />
+                                <TextBlock x:Name="SwapButtonText" Text="Как ввод" FontSize="12" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="CopyResultButton" Style="{StaticResource AccentButtonStyle}" Padding="10,4" Click="CopyResultButton_Click" ToolTipService.ToolTip="Скопировать результат в буфер обмена">
+                            <StackPanel Orientation="Horizontal" Spacing="4">
+                                <FontIcon x:Name="CopyResultIcon" Glyph="&#xE8C8;" FontSize="12" />
+                                <TextBlock x:Name="CopyResultButtonText" Text="Скопировать" FontSize="12" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <TextBox x:Name="CleanedOutputTextBox" Grid.Row="1"
+                         IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap"
+                         PlaceholderText="Здесь появится очищенный текст..."
+                         FontFamily="Consolas, Cascadia Mono, monospace"
+                         VerticalAlignment="Stretch"
+                         ScrollViewer.VerticalScrollBarVisibility="Auto" />
+            </Grid>
+        </Grid>
+
+        <!-- Row 4: Bottom Breakdown & Diagnostics Panel -->
+        <Border Grid.Row="4"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1" CornerRadius="8" Padding="14,10">
+            <Grid RowDefinitions="Auto,Auto">
+                <Grid Grid.Row="0" Margin="0,0,0,4" ColumnDefinitions="*,Auto">
+                    <TextBlock x:Name="AnalysisResultsTitle" Grid.Column="0" Text="Результаты анализа и примененные правила" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                    <TextBlock x:Name="TimingStatsLabel" Grid.Column="1" Text="0.00 мс" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                </Grid>
+                <StackPanel Grid.Row="1" Spacing="4">
+                    <TextBlock x:Name="RuleSummaryText" Text="Введите или вставьте текст для анализа" Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="HomoglyphWarningText" Visibility="Collapsed" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource SystemFillColorCautionBrush}" TextWrapping="Wrap" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Page>

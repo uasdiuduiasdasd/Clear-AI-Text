@@ -1,0 +1,322 @@
+<Page
+    x:Class="ClearAIText.App.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    NavigationCacheMode="Required">
+
+    <ScrollViewer Padding="20,12,20,16">
+        <StackPanel Spacing="12" MaxWidth="800" HorizontalAlignment="Stretch">
+            <!-- Title Header -->
+            <StackPanel Spacing="2">
+                <TextBlock x:Name="SettingsPageTitle" Text="Настройки Clear AI Text" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap" />
+                <TextBlock x:Name="SettingsPageSubtitle" Text="Управление правилами очистки, пользовательскими заменами, исключениями процессов и параметрами системы"
+                           Style="{StaticResource BodySubtleTextBlockStyle}" TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- Group 0: Appearance & Language -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="14,12">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Name="AppearanceGroupTitle" Text="Внешний вид и язык" Style="{StaticResource SubtitleTextBlockStyle}" />
+                    <TextBlock x:Name="AppearanceGroupDesc" Text="Настройка темы оформления и языка интерфейса приложения."
+                               Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <StackPanel Grid.Column="0" Spacing="4">
+                            <TextBlock x:Name="ThemeHeaderLabel" Text="Тема оформления" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <ComboBox x:Name="ThemeModeComboBox" HorizontalAlignment="Stretch" SelectionChanged="ThemeModeComboBox_SelectionChanged">
+                                <ComboBoxItem Content="Как в системе" Tag="System" />
+                                <ComboBoxItem Content="Светлая" Tag="Light" />
+                                <ComboBoxItem Content="Темная" Tag="Dark" />
+                            </ComboBox>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock x:Name="LanguageHeaderLabel" Text="Язык интерфейса" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                            <ComboBox x:Name="LanguageComboBox" HorizontalAlignment="Stretch" SelectionChanged="LanguageComboBox_SelectionChanged">
+                                <ComboBoxItem Content="Русский (Russian)" Tag="ru" />
+                                <ComboBoxItem Content="English" Tag="en" />
+                            </ComboBox>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- Group 1: Master Normalization Switch -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="14,12">
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+                        <TextBlock x:Name="MasterToggleTitle" Text="Нормализация текста" Style="{StaticResource SubtitleTextBlockStyle}" />
+                        <TextBlock x:Name="MasterToggleDesc" Text="Главный переключатель конвейера нормализации. При выключении текст проходит без изменений."
+                                   Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                    </StackPanel>
+                    <ToggleSwitch x:Name="MasterNormalizationToggle"
+                                  Grid.Column="1"
+                                  OffContent="Отключена" OnContent="Включена"
+                                  Toggled="SettingToggle_Toggled"
+                                  VerticalAlignment="Center" />
+                </Grid>
+            </Border>
+
+            <!-- Group 2: Tier 1 Safe Rules -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="14,12">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Name="Tier1GroupTitle" Text="Уровень 1: Безопасная нормализация (Tier 1)" Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="Tier1GroupDesc" Text="Правила, сохраняющие семантику и структуру текста. Рекомендуются к постоянному включению."
+                               Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+
+                    <ToggleSwitch x:Name="NormalizeDashesToggle"
+                                  Header="Замена длинных тире на дефис"
+                                  OffContent="Отключено" OnContent="Включено"
+                                  Toggled="SettingToggle_Toggled" />
+
+                    <ToggleSwitch x:Name="NormalizeQuotesToggle"
+                                  Header="Замена типографских кавычек на прямые"
+                                  OffContent="Отключено" OnContent="Включено"
+                                  Toggled="SettingToggle_Toggled" />
+
+                    <ToggleSwitch x:Name="NormalizeWhitespacesToggle"
+                                  Header="Нормализация неразрывных и экзотических пробелов"
+                                  OffContent="Отключено" OnContent="Включено"
+                                  Toggled="SettingToggle_Toggled" />
+
+                    <ToggleSwitch x:Name="CleanInvisibleToggle"
+                                  Header="Удаление невидимых символов и BOM"
+                                  OffContent="Отключено" OnContent="Включено"
+                                  Toggled="SettingToggle_Toggled" />
+                </StackPanel>
+            </Border>
+
+            <!-- Group 3: Custom User Rules -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="14,12">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Name="CustomRulesGroupTitle" Text="Пользовательские правила" Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="CustomRulesGroupDesc" Text="Добавляйте и редактируйте свои символы или шаблоны для автоматического удаления либо замены."
+                               Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+
+                    <!-- Add / Edit Custom Rule Controls -->
+                    <Border Background="{ThemeResource LayerFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1" CornerRadius="6" Padding="12">
+                        <StackPanel Spacing="8">
+                            <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                <TextBox x:Name="RulePatternTextBox"
+                                         Grid.Column="0"
+                                         Header="Символ, текст или Regex-шаблон"
+                                         PlaceholderText="Например: ★, [AI], \s{2,}" />
+
+                                <ComboBox x:Name="RuleActionComboBox"
+                                          Grid.Column="1"
+                                          Header="Действие"
+                                          HorizontalAlignment="Stretch"
+                                          SelectedIndex="0"
+                                          SelectionChanged="RuleActionComboBox_SelectionChanged">
+                                    <ComboBoxItem Content="Удалять символ / текст" Tag="Remove" />
+                                    <ComboBoxItem Content="Заменять на другое значение" Tag="Replace" />
+                                </ComboBox>
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <TextBox x:Name="RuleReplacementTextBox"
+                                         Grid.Column="0"
+                                         Header="Заменять на (текст / символ)"
+                                         PlaceholderText="Например: пробел, дефис или текст"
+                                         IsEnabled="False" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8" Margin="0,4,0,0">
+                                <CheckBox x:Name="RuleIsRegexCheckBox"
+                                          Grid.Column="0"
+                                          Content="Использовать регулярное выражение (Regex)" />
+                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6" VerticalAlignment="Bottom">
+                                    <Button x:Name="CancelEditButton"
+                                            Content="Отмена"
+                                            Visibility="Collapsed"
+                                            Click="CancelEditButton_Click" />
+                                    <Button x:Name="AddRuleButton"
+                                            Content="Добавить правило"
+                                            Style="{StaticResource AccentButtonStyle}"
+                                            Click="AddRuleButton_Click" />
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock x:Name="RuleRegexHintText"
+                                       Text="Флаг Regex включает поиск по регулярным выражениям вместо точного совпадения текста."
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Custom Rules List -->
+                    <TextBlock x:Name="CustomRulesListHeader"
+                               Text="Список пользовательских правил:"
+                               Style="{StaticResource BodyStrongTextBlockStyle}"
+                               Margin="0,2,0,0" />
+
+                    <ListView x:Name="CustomRulesListView"
+                              SelectionMode="None"
+                              MaxHeight="260">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="Padding" Value="0" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,3" ColumnDefinitions="*,Auto,Auto,Auto">
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                                        <Border Background="{ThemeResource LayerFillColorAltBrush}"
+                                                CornerRadius="4" Padding="6,3">
+                                            <TextBlock Text="{Binding DisplayPattern}"
+                                                       FontFamily="Consolas, monospace"
+                                                       FontWeight="SemiBold"
+                                                       VerticalAlignment="Center" />
+                                        </Border>
+                                        <FontIcon Glyph="&#xE72A;" FontSize="11" Foreground="{ThemeResource TextFillColorSecondaryBrush}" VerticalAlignment="Center" />
+                                        <Border Background="{Binding BadgeBackgroundBrush}"
+                                                CornerRadius="4" Padding="6,3">
+                                            <TextBlock Text="{Binding DisplayAction}"
+                                                       FontFamily="Consolas, monospace"
+                                                       Foreground="{Binding BadgeForegroundBrush}"
+                                                       FontWeight="SemiBold"
+                                                       VerticalAlignment="Center" />
+                                        </Border>
+                                        <TextBlock Text="(Regex)"
+                                                   Visibility="{Binding RegexVisibility}"
+                                                   FontSize="11"
+                                                   Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                                   VerticalAlignment="Center" />
+                                    </StackPanel>
+
+                                    <ToggleSwitch Grid.Column="1"
+                                                  IsOn="{Binding IsEnabled, Mode=TwoWay}"
+                                                  Toggled="RuleToggle_Toggled"
+                                                  Tag="{Binding}"
+                                                  Margin="0,0,8,0"
+                                                  VerticalAlignment="Center" />
+
+                                    <Button Grid.Column="2"
+                                            Content="Изменить"
+                                            Click="EditRuleButton_Click"
+                                            Tag="{Binding}"
+                                            Margin="0,0,6,0"
+                                            VerticalAlignment="Center" />
+
+                                    <Button Grid.Column="3"
+                                            Content="Удалить"
+                                            Click="RemoveRuleButton_Click"
+                                            Tag="{Binding}"
+                                            VerticalAlignment="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <TextBlock x:Name="EmptyCustomRulesText"
+                               Text="Пользовательские правила еще не добавлены."
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Group 4: Tier 2 Destructive Rules -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="14,12">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Name="Tier2GroupTitle" Text="Уровень 2: Деструктивная очистка (Tier 2)" Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="Tier2GroupDesc" Text="Опциональные правила, удаляющие определенные типы контента."
+                               Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+
+                    <ToggleSwitch x:Name="StripDiacriticsToggle"
+                                  Header="Удаление диакритических знаков (акцентов)"
+                                  OffContent="Отключено" OnContent="Включено"
+                                  Toggled="SettingToggle_Toggled" />
+
+                    <ToggleSwitch x:Name="StripEmojisToggle"
+                                  Header="Удаление эмодзи"
+                                  OffContent="Отключено" OnContent="Включено"
+                                  Toggled="SettingToggle_Toggled" />
+
+                    <ToggleSwitch x:Name="StripMarkdownToggle"
+                                  Header="Очистка Markdown-разметки"
+                                  OffContent="Отключено" OnContent="Включено"
+                                  Toggled="SettingToggle_Toggled" />
+                </StackPanel>
+            </Border>
+
+            <!-- Group 5: Process Exclusions -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="14,12">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Name="ExclusionsGroupTitle" Text="Исключения приложений" Style="{StaticResource SubtitleTextBlockStyle}" TextWrapping="Wrap" />
+                    <TextBlock x:Name="ExclusionsGroupDesc" Text="Приложения, при копировании из которых очистка буфера обмена НЕ выполняется (например, менеджеры паролей)."
+                               Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+
+                    <!-- Add Process Controls -->
+                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8" Margin="0,2,0,4">
+                        <TextBox x:Name="NewProcessTextBox" Grid.Column="0"
+                                 PlaceholderText="Имя процесса (например: KeePass, Bitwarden)"
+                                 KeyDown="NewProcessTextBox_KeyDown" />
+                        <Button x:Name="AddProcessButton" Grid.Column="1" Content="Добавить" Click="AddProcessButton_Click" VerticalAlignment="Bottom" />
+                        <Button x:Name="PickRunningAppButton" Grid.Column="2" Content="Выбрать из запущенных..." Click="PickRunningAppButton_Click" VerticalAlignment="Bottom" />
+                    </Grid>
+
+                    <!-- Process List -->
+                    <ListView x:Name="ExcludedProcessesListView" SelectionMode="None" MaxHeight="180">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="Padding" Value="0" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,2" ColumnDefinitions="*,Auto">
+                                    <TextBlock Grid.Column="0" Text="{Binding}" VerticalAlignment="Center" FontFamily="Consolas, monospace" />
+                                    <Button Grid.Column="1" Content="Удалить" Click="RemoveProcessButton_Click" Tag="{Binding}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+                    <TextBlock x:Name="EmptyExcludedProcessesText"
+                               Text="Список исключений пуст."
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Group 6: System Integration -->
+            <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="14,12">
+                <StackPanel Spacing="10">
+                    <TextBlock x:Name="SystemGroupTitle" Text="Интеграция с системой" Style="{StaticResource SubtitleTextBlockStyle}" />
+
+                    <ToggleSwitch x:Name="StartWithWindowsToggle"
+                                  Header="Автозапуск при старте Windows"
+                                  OffContent="Выключен" OnContent="Включен"
+                                  Toggled="StartWithWindowsToggle_Toggled" />
+
+                    <ToggleSwitch x:Name="MinimizeToTrayToggle"
+                                  Header="Сворачивать в системный трей при закрытии"
+                                  OffContent="Закрывать приложение" OnContent="Сворачивать в трей"
+                                  Toggled="MinimizeToTrayToggle_Toggled" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

@@ -1,0 +1,57 @@
+## Visual Studio / .NET
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+
+dist/
+publish/
+AppPackages/
+BundleArtifacts/
+Package.StoreAssociation.xml
+_pkginfo.txt
+*.msix
+*.appx
+*.appxbundle
+*.msixbundle
+*.cer
+*.pfx
+
+## Generated Files
+Generated Files/
+*.g.cs
+*.g.i.cs
+*.xaml.g.cs
+*.xaml.g.i.cs
+x64/
+x86/
+ARM64/
+
+## Operating System
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+## IDEs
+.idea/
+.vscode/
+*.swp
+*~
+
+## Excluded from Public Repository
+.agent/
+.gemini/
+AGENTS.md
+docs/
+installer/
+scripts/
+tests/
+TestResults/
+.tempmediaStorage/

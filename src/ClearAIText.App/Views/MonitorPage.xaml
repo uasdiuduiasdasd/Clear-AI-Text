@@ -1,0 +1,167 @@
+<Page
+    x:Class="ClearAIText.App.Views.MonitorPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:ClearAIText.App.Models"
+    mc:Ignorable="d"
+    NavigationCacheMode="Required">
+
+    <Grid Padding="20,12,20,16" RowDefinitions="Auto,Auto,Auto,*">
+        <!-- Page Title -->
+        <StackPanel Grid.Row="0" Spacing="2" Margin="0,0,0,6">
+            <TextBlock x:Name="MonitorPageTitle" Text="Мониторинг буфера обмена" Style="{StaticResource TitleTextBlockStyle}" TextWrapping="NoWrap" />
+            <TextBlock x:Name="MonitorPageSubtitle" Text="Автоматический перехват и безопасная нормализация специфической ИИ-типографики"
+                       Style="{StaticResource BodySubtleTextBlockStyle}" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <!-- Toolbar (separate row) -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="12" Margin="0,0,0,10"
+                    HorizontalAlignment="Left" VerticalAlignment="Center">
+            <ToggleSwitch x:Name="MonitoringToggle"
+                          OffContent="Мониторинг приостановлен"
+                          OnContent="Мониторинг активен"
+                          Toggled="MonitoringToggle_Toggled" />
+            <Button x:Name="ClearHistoryButton"
+                    Content="Очистить историю"
+                    Click="ClearHistoryButton_Click">
+                <Button.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="Delete" Modifiers="Control" />
+                </Button.KeyboardAccelerators>
+            </Button>
+        </StackPanel>
+
+        <!-- KPI Metrics Grid -->
+        <Grid Grid.Row="2" Margin="0,0,0,12" ColumnDefinitions="*,*,*" ColumnSpacing="8">
+            <!-- Card 1: Total Processed -->
+            <Border Grid.Column="0" Padding="14,10"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="8">
+                <StackPanel Spacing="2">
+                    <TextBlock x:Name="MetricTotalLabel" Text="Всего событий" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+                    <TextBlock x:Name="TotalCountText" Text="0" Style="{StaticResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
+                </StackPanel>
+            </Border>
+
+            <!-- Card 2: Chars Cleaned -->
+            <Border Grid.Column="1" Padding="14,10"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="8">
+                <StackPanel Spacing="2">
+                    <TextBlock x:Name="MetricCleanedLabel" Text="Очищено" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+                    <TextBlock x:Name="TotalCharsText" Text="0" Style="{StaticResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
+                </StackPanel>
+            </Border>
+
+            <!-- Card 3: Avg Time -->
+            <Border Grid.Column="2" Padding="14,10"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="8">
+                <StackPanel Spacing="2">
+                    <TextBlock x:Name="MetricAvgTimeLabel" Text="Ср. время" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" />
+                    <TextBlock x:Name="LastActivityText" Text="&amp;lt; 0.1 мс" Style="{StaticResource SubtitleTextBlockStyle}" FontWeight="SemiBold" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- History Content Section -->
+        <Grid Grid.Row="3" RowDefinitions="Auto,*">
+            <TextBlock x:Name="OperationsLogHeader" Grid.Row="0" Text="Журнал операций" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,0,0,10" />
+
+            <!-- Empty State Display -->
+            <Border x:Name="EmptyStateBorder" Grid.Row="1"
+                    Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="32"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                <StackPanel HorizontalAlignment="Center" Spacing="8">
+                    <FontIcon Glyph="&#xE774;" FontSize="36" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" HorizontalAlignment="Center" />
+                    <TextBlock x:Name="EmptyStateTitle" Text="История пока пуста" Style="{StaticResource BodyStrongTextBlockStyle}" HorizontalAlignment="Center" />
+                    <TextBlock x:Name="EmptyStateSubtitle" Text="Скопируйте текст из чата ИИ или браузера. Приложение автоматически очистит нестандартную типографику."
+                               Style="{StaticResource BodySubtleTextBlockStyle}" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"
+                               MaxWidth="500" />
+                </StackPanel>
+            </Border>
+
+            <!-- History ListView -->
+            <ListView x:Name="HistoryListView" Grid.Row="1"
+                      SelectionMode="None"
+                      ItemsSource="{x:Bind ViewModelHistory, Mode=OneWay}">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Padding" Value="0" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="models:HistoryRecord">
+                        <Border Margin="0,0,0,8" Padding="14,12"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                BorderThickness="1" CornerRadius="8">
+                            <Grid RowDefinitions="Auto,Auto">
+                                <!-- Top Metadata Row -->
+                                <Grid Grid.Row="0" Margin="0,0,0,8" ColumnDefinitions="Auto,Auto,*,Auto">
+                                    <!-- Time Badge -->
+                                    <Border Grid.Column="0" Background="{ThemeResource SystemFillColorNeutralBackgroundBrush}"
+                                            CornerRadius="4" Padding="6,2" Margin="0,0,8,0">
+                                        <TextBlock Text="{x:Bind FormattedTime}" Style="{StaticResource CaptionTextBlockStyle}" />
+                                    </Border>
+
+                                    <!-- Process Name Badge -->
+                                    <Border Grid.Column="1" Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                            CornerRadius="4" Padding="6,2" Margin="0,0,8,0">
+                                        <TextBlock Text="{x:Bind SourceProcess}" Foreground="White" Style="{StaticResource CaptionTextBlockStyle}" FontWeight="Medium" />
+                                    </Border>
+
+                                    <!-- Applied Rules Summary -->
+                                    <TextBlock Grid.Column="2" Text="{x:Bind SummaryText}"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                               VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+
+                                    <!-- Action Buttons -->
+                                    <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="6">
+                                        <Button Content="Оригинал"
+                                                Click="UndoButton_Click" Tag="{x:Bind}" />
+                                        <Button Content="Копировать"
+                                                Click="CopyResultButton_Click" Tag="{x:Bind}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Text Preview Split -->
+                                <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="8" Margin="0,4,0,0">
+                                    <!-- Original Preview -->
+                                    <Border Grid.Column="0" Padding="8"
+                                            Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                            CornerRadius="4">
+                                        <StackPanel Spacing="2">
+                                            <TextBlock Text="Оригинал:" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorTertiaryBrush}" />
+                                            <TextBlock Text="{x:Bind OriginalText}" FontFamily="Consolas, Cascadia Mono, monospace"
+                                                       FontSize="12" MaxLines="3" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Cleaned Preview -->
+                                    <Border Grid.Column="1" Padding="8"
+                                            Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                            CornerRadius="4">
+                                        <StackPanel Spacing="2">
+                                            <TextBlock Text="Нормализовано:" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
+                                            <TextBlock Text="{x:Bind CleanedText}" FontFamily="Consolas, Cascadia Mono, monospace"
+                                                       FontSize="12" MaxLines="3" TextWrapping="Wrap" TextTrimming="CharacterEllipsis" />
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+    </Grid>
+</Page>

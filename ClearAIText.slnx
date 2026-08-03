@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ClearAIText.App/ClearAIText.App.csproj">
+      <Platform Project="x64" />
+    </Project>
+    <Project Path="src/ClearAIText.Core/ClearAIText.Core.csproj" />
+    <Project Path="src/ClearAIText.Windows/ClearAIText.Windows.csproj" />
+  </Folder>
+</Solution>

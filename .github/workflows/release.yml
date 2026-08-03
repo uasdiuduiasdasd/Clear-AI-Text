@@ -1,0 +1,57 @@
+name: Release Build & Publish
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-release:
+    runs-on: windows-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore ClearAIText.slnx
+
+      - name: Publish Self-Contained WinUI 3 App (win-x64)
+        run: |
+          dotnet publish src/ClearAIText.App/ClearAIText.App.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -o publish/win-x64
+
+      - name: Clean up Unneeded Satellite Folders and Symbols
+        run: |
+          $keepDirs = @("Assets", "Microsoft.UI.Xaml", "runtimes", "ru-RU", "en-us")
+          Get-ChildItem -Path publish/win-x64 -Directory | Where-Object { $keepDirs -notcontains $_.Name } | Remove-Item -Recurse -Force
+          Get-ChildItem -Path publish/win-x64 -Filter *.pdb -Recurse | Remove-Item -Force
+        shell: powershell
+
+      - name: Create Portable ZIP Archive
+        run: |
+          New-Item -ItemType Directory -Path dist -Force | Out-Null
+          Compress-Archive -Path publish/win-x64/* -DestinationPath dist/Clear-AI-Text-Portable-win-x64.zip -Force
+        shell: powershell
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            dist/*.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: true
