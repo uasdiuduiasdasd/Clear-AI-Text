@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/ClearAIText.App/Assets/app_icon_256.png" alt="Clear AI Text Logo" width="128" height="128" />
+  <img src="src/ClearAIText.App/Assets/app_icon_256.png" alt="Clear AI Text Logo" width="256" height="256" />
 </p>
 
 <h1 align="center">Clear AI Text</h1>
